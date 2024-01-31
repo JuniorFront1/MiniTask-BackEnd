@@ -1,7 +1,10 @@
 import fastify from 'fastify';
 const server = fastify();
-server.get('/ping', async (request, reply) => {
-    return 'ponasdg\n';
+server.get('/', async (request, reply) => {
+    return '{ hello: world }';
+});
+server.get('/getPopularWord', async (request, reply) => {
+    return '{ hello, tom, nikita, damir, program }';
 });
 server.listen({ port: 8080 }, (err, address) => {
     if (err) {
