@@ -44,13 +44,13 @@ server.listen({ port: 8080 }, (err, address) => {
         const resultArrayWords = arrayWords.filter((el) => {
             return el != '' && el.length >= 2;
         });
-        const arrayObjWords = {};
+        const objWords = {};
         resultArrayWords.forEach((item) => {
-            arrayObjWords[item] ? arrayObjWords[item]++ : (arrayObjWords[item] = 1);
+            objWords[item] ? objWords[item]++ : (objWords[item] = 1);
         });
-        return arrayObjWords;
+        return objWords;
     });
     console.log({ textOfPage });
-    // await context.close();
-    // await browser.close();
+    await context.close();
+    await browser.close();
 })();

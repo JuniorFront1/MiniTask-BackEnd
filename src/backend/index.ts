@@ -54,13 +54,13 @@ server.listen({ port: 8080 }, (err, address) => {
             return el != '' && el.length >= 2;
         });
 
-        const arrayObjWords = {} as any;
+        const objWords = {} as any;
 
-        resultArrayWords.forEach((item) => {
-            arrayObjWords[item] ? arrayObjWords[item]++ : (arrayObjWords[item] = 1);
+        resultArrayWords.forEach((item: string) => {
+            objWords[item] ? objWords[item]++ : (objWords[item] = 1);
         });
 
-        return arrayObjWords;
+        return objWords;
     });
 
     console.log({ textOfPage });
