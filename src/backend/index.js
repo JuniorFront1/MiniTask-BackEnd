@@ -11,6 +11,7 @@ server.get('/', async (request, reply) => {
     return '{ hello: world }';
 });
 server.get('/getPopularWord', async (request, reply) => {
+    // Работа с playwright
     return testOBJ;
 });
 server.listen({ port: 8080 }, (err, address) => {
@@ -28,7 +29,28 @@ server.listen({ port: 8080 }, (err, address) => {
     });
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('https://letcode.in/');
-    await context.close();
-    await browser.close();
+    await page.goto('https://habr.com/ru/hubs/javascript/articles/');
+    const textOfPage = await page.evaluate(() => {
+        const arrayProposal = Array.from(document.querySelectorAll('body'))
+            .map((x) => x.textContent)
+            .join()
+            .toLowerCase()
+            .split('\n');
+        const arrayWords = arrayProposal
+            .join()
+            .replace(/[&\/\s\#,+()$~%.'":*?<>{}·]/g, ' ')
+            .replace(/[^a-zA-Zа-яА-Яё -]/g, '')
+            .split(' ');
+        const resultArrayWords = arrayWords.filter((el) => {
+            return el != '' && el.length >= 2;
+        });
+        const arrayObjWords = {};
+        resultArrayWords.forEach((item) => {
+            arrayObjWords[item] ? arrayObjWords[item]++ : (arrayObjWords[item] = 1);
+        });
+        return arrayObjWords;
+    });
+    console.log({ textOfPage });
+    // await context.close();
+    // await browser.close();
 })();
