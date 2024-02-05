@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { Browser, BrowserContext, Page, chromium } from 'playwright';
+import { chromium } from 'playwright';
 
 // Статичный сервер от fastify
 const server = fastify();
@@ -9,13 +9,11 @@ const testOBJ = {
     nikita: 'damir',
     tom: 'program',
 };
-
-server.get('/', async (request, reply) => {
-    return '{ hello: world }';
+server.get('/index.html', async (request, reply) => {
+    return request;
 });
 
 server.get('/getPopularWord', async (request, reply) => {
-    // Работа с playwright
     return testOBJ;
 });
 
@@ -29,42 +27,39 @@ server.listen({ port: 8080 }, (err, address) => {
 
 // Работа с playwright
 (async () => {
-    const browser: Browser = await chromium.launch({
+    const browser = await chromium.launch({
         headless: false,
         channel: 'msedge',
     });
-    const context: BrowserContext = await browser.newContext();
-    const page: Page = await context.newPage();
+    const context = await browser.newContext();
+    const page = await context.newPage();
     await page.goto('https://habr.com/ru/hubs/javascript/articles/');
-
     const textOfPage = await page.evaluate(() => {
         const arrayProposal = Array.from(document.querySelectorAll('body'))
             .map((x) => x.textContent)
             .join()
             .toLowerCase()
             .split('\n');
-
         const arrayWords = arrayProposal
             .join()
             .replace(/[&\/\s\#,+()$~%.'":*?<>{}·]/g, ' ')
             .replace(/[^a-zA-Zа-яА-Яё -]/g, '')
             .split(' ');
-
         const resultArrayWords = arrayWords.filter((el) => {
             return el != '' && el.length >= 2;
         });
-
-        const objWords = {} as any;
-
-        resultArrayWords.forEach((item: string) => {
-            objWords[item] ? objWords[item]++ : (objWords[item] = 1);
+        const arrayObjWords: Record<string, number> = {};
+        resultArrayWords.forEach((item: string, i: number): void => {
+            arrayObjWords[item] ? arrayObjWords[item]++ : (arrayObjWords[item] = 1);
         });
 
-        return objWords;
+        const result = Object.entries(arrayObjWords).sort((a, b) => {
+            return b[1] - a[1];
+        });
+
+        return result;
     });
-
     console.log({ textOfPage });
-
     await context.close();
     await browser.close();
 })();

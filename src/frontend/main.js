@@ -1,9 +1,12 @@
+import { playWrightFunc } from '../backend/index';
+
 window.addEventListener('DOMContentLoaded', () => {
     const btn = document.querySelector('.btn');
 
     btn.addEventListener('click', async () => {
         // Получение ссылки и тела таблицы
         const url = document.querySelector('.inpt').value;
+        console.log(playWrightFunc(url));
         const tableBody = document.querySelector('.table__body');
         // Рендеринг HTML структуры таблицы
         let htmlTable = ``;

@@ -7,11 +7,10 @@ const testOBJ = {
     nikita: 'damir',
     tom: 'program',
 };
-server.get('/', async (request, reply) => {
-    return '{ hello: world }';
+server.get('/index.html', async (request, reply) => {
+    return request;
 });
 server.get('/getPopularWord', async (request, reply) => {
-    // Работа с playwright
     return testOBJ;
 });
 server.listen({ port: 8080 }, (err, address) => {
@@ -44,11 +43,14 @@ server.listen({ port: 8080 }, (err, address) => {
         const resultArrayWords = arrayWords.filter((el) => {
             return el != '' && el.length >= 2;
         });
-        const objWords = {};
-        resultArrayWords.forEach((item) => {
-            objWords[item] ? objWords[item]++ : (objWords[item] = 1);
+        const arrayObjWords = {};
+        resultArrayWords.forEach((item, i) => {
+            arrayObjWords[item] ? arrayObjWords[item]++ : (arrayObjWords[item] = 1);
         });
-        return objWords;
+        const result = Object.entries(arrayObjWords).sort((a, b) => {
+            return b[1] - a[1];
+        });
+        return result;
     });
     console.log({ textOfPage });
     await context.close();
