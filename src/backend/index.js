@@ -1,19 +1,24 @@
 import fastify from 'fastify';
+import path from 'path';
 import { chromium } from 'playwright';
+import { fastifyStatic } from '@fastify/static';
 // Статичный сервер от fastify
-const server = fastify();
-const testOBJ = {
-    hello: 'world',
-    nikita: 'damir',
-    tom: 'program',
-};
-server.get('/index.html', async (request, reply) => {
-    return request;
+const server = fastify({ trustProxy: true });
+server.register(fastifyStatic, {
+    root: path.join(process.cwd(), 'src', 'frontend'),
+    prefix: '/src/frontend/',
+});
+server.get('/', (request, reply) => {
+    return reply.sendFile('index.html');
 });
 server.get('/getPopularWord', async (request, reply) => {
-    return testOBJ;
+    const q = request.query;
+    if (q.url == null) {
+        return 'WTF';
+    }
+    return takeWordsSite(q.url);
 });
-server.listen({ port: 8080 }, (err, address) => {
+server.listen({ port: 5500, host: '127.0.0.1' }, (err, address) => {
     if (err) {
         console.error(err);
         process.exit(1);
@@ -21,14 +26,16 @@ server.listen({ port: 8080 }, (err, address) => {
     console.log(`Server listening at ${address}`);
 });
 // Работа с playwright
-(async () => {
+export const takeWordsSite = async (url) => {
     const browser = await chromium.launch({
         headless: false,
         channel: 'msedge',
     });
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('https://habr.com/ru/hubs/javascript/articles/');
+    await page.goto(url, {
+        waitUntil: 'domcontentloaded',
+    });
     const textOfPage = await page.evaluate(() => {
         const arrayProposal = Array.from(document.querySelectorAll('body'))
             .map((x) => x.textContent)
@@ -47,12 +54,12 @@ server.listen({ port: 8080 }, (err, address) => {
         resultArrayWords.forEach((item, i) => {
             arrayObjWords[item] ? arrayObjWords[item]++ : (arrayObjWords[item] = 1);
         });
-        const result = Object.entries(arrayObjWords).sort((a, b) => {
+        const sortedArrayObjWords = Object.entries(arrayObjWords).sort((a, b) => {
             return b[1] - a[1];
         });
-        return result;
+        return sortedArrayObjWords;
     });
-    console.log({ textOfPage });
     await context.close();
     await browser.close();
-})();
+    return textOfPage;
+};

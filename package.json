@@ -18,6 +18,7 @@
         "typescript": "5.3.3"
     },
     "dependencies": {
+        "@fastify/static": "^7.0.1",
         "playwright": "^1.41.1"
     }
 }

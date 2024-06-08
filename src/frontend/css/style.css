@@ -59,6 +59,20 @@ h1 {
     color: red;
 }
 
+.choise {
+    display: grid;
+    grid-template-columns: 1fr;
+    font-size: 18px;
+}
+
+.choise span {
+    margin-top: 10px;
+}
+
+.choise__select {
+    margin: 5px 0;
+}
+
 /* Стилизация инпута */
 .inpt {
     border: none;
